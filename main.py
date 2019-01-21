@@ -76,8 +76,8 @@ def main():
     for language in languages_list:
         salary_hh = predict_rub_salary_for_hh(fetch_vacancy_hh(language))
         salary_sj = predict_rub_salary_for_sj(fetch_vacancy_sj(language))
-        table_data_hh = table_data_hh + ((language, salary_hh[0], salary_hh[1], salary_hh[2]), )
-        table_data_sj = table_data_sj + ((language, salary_sj[0], salary_sj[1], salary_sj[2]), )
+        table_data_hh = table_data_hh + ((language,) + salary_hh,)
+        table_data_sj = table_data_sj + ((language,) + salary_sj,)
 
     table_header_hh = 'HeadHunter'
     table_header_sj = 'SuperJob'
