@@ -69,6 +69,7 @@ def predict_rub_salary_for_sj(response_sj_json):
 
 
 def main():
+    load_dotenv()
     languages_list = ['C', 'JavaScript', 'Java', 'Python', 'Ruby', 'PHP', 'C++', 'C#', 'Go', 'Objective-C', 'TypeScript', '1С', 'Scala', 'Swift']
     table_data_hh = table_data_sj = (('Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'), )
 
@@ -88,5 +89,4 @@ def main():
 
 
 if __name__ == '__main__':
-    load_dotenv()
     main()
