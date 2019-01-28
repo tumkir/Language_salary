@@ -21,7 +21,6 @@ def fetch_vacancy_hh(language):
     for page in range(1, pages_hh):
         params['page'] = page
         vacancies_response = requests.get(url_hh, params=params)
-        print(f"{language} page {page} loaded")
         vacancies_json = vacancies_response.json()
         for vacancy in vacancies_json['items']:
             response_json_hh['items'].append(vacancy)
@@ -88,8 +87,10 @@ def main():
 
     for language in languages_list:
         salary_hh = predict_rub_salary_for_hh(fetch_vacancy_hh(language))
+        print(f"{language} vacancies from HH loaded")
         salary_sj = predict_rub_salary_for_sj(fetch_vacancy_sj(language))
         table_data_hh = table_data_hh + ((language,) + salary_hh,)
+        print(f"{language} vacancies from SJ loaded")
         table_data_sj = table_data_sj + ((language,) + salary_sj,)
 
     table_header_hh = 'HeadHunter'
