@@ -7,7 +7,13 @@ from dotenv import load_dotenv
 
 def fetch_vacancy_hh(language):
     url_hh = 'https://api.hh.ru/vacancies'
-    params = {'text': f"Программист {language}", 'area': 1, 'period': 30, 'only_with_salary': 'true', 'currency': 'RUR'}
+    moscow_region_id = 1
+    params = {
+        'text': f"Программист {language}",
+        'area': moscow_region_id,
+        'only_with_salary': 'true',
+        'currency': 'RUR'
+    }
     response_hh = requests.get(url_hh, params=params)
     response_json_hh = response_hh.json()
     pages_hh = response_json_hh['pages']
@@ -26,7 +32,14 @@ def fetch_vacancy_hh(language):
 def fetch_vacancy_sj(language):
     url_sj = 'https://api.superjob.ru/2.0/vacancies/'
     headers = {'X-Api-App-Id': os.getenv('key')}
-    params = {'keyword': f"Программист {language}", 'town': 4, 'currency': 'rub', 'count': 100, 'catalogues': 48}
+    work_sector_development_and_programming_id = 48
+    results_per_page = 100
+    params = {
+        'keyword': f"Программист {language}",
+        'town': 'Москва',
+        'currency': 'rub',
+        'count': results_per_page,
+        'catalogues': work_sector_development_and_programming_id}
     response_sj = requests.get(url_sj, headers=headers, params=params)
     response_sj_json = response_sj.json()
     return response_sj_json
