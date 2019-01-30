@@ -40,44 +40,46 @@ def fetch_vacancy_sj(language):
         'count': results_per_page,
         'catalogues': work_sector_development_and_programming_id}
     response_sj = requests.get(url_sj, headers=headers, params=params)
-    response_sj_json = response_sj.json()
-    return response_sj_json
+    response_json_sj = response_sj.json()
+    return response_json_sj
 
 
-def predict_rub_salary_for_hh(response_json_hh):
+def result_for_hh(response_json_hh):
     all_salaries_hh = []
 
     for vacancy in response_json_hh['items']:
-        if vacancy['salary']['from'] is None:
-            all_salaries_hh.append(vacancy['salary']['to'] * 0.8)
-        elif vacancy['salary']['to'] is None:
-            all_salaries_hh.append((vacancy['salary']['from'] * 1.2))
-        elif vacancy['salary']['from'] is not None and vacancy['salary']['to'] is not None:
-            all_salaries_hh.append(int(vacancy['salary']['from'] + (vacancy['salary']['to']) / 2))
+        all_salaries_hh.append(predict_salary(vacancy['salary']['from'], vacancy['salary']['to']))
 
     results_hh = response_json_hh['found'], len(all_salaries_hh), int(statistics.mean(all_salaries_hh))
     return results_hh
 
 
-def predict_rub_salary_for_sj(response_sj_json):
+def result_for_sj(response_json_sj):
     all_salaries_sj = []
 
-    if response_sj_json['total'] == 0:
-        results_sj = response_sj_json['total'], len(all_salaries_sj), 'unknown'
-        pass
+    if response_json_sj['total'] == 0:
+        results_sj = response_json_sj['total'], len(all_salaries_sj), 'unknown'
     else:
-        for vacancy in response_sj_json['objects']:
+        for vacancy in response_json_sj['objects']:
             if vacancy['payment'] is None:
                 continue
-            elif vacancy['payment_from'] == 0:
-                all_salaries_sj.append(vacancy['payment_to'] * 0.8)
-            elif vacancy['payment_to'] == 0:
-                all_salaries_sj.append((vacancy['payment_from'] * 1.2))
-            elif vacancy['payment_from'] != 0 and vacancy['payment_to'] != 0:
-                all_salaries_sj.append(int((vacancy['payment_from'] + vacancy['payment_to']) / 2))
-        results_sj = response_sj_json['total'], len(all_salaries_sj), int(statistics.mean(all_salaries_sj))
+            else:
+                all_salaries_sj.append(predict_salary(vacancy['payment_from'], vacancy['payment_to']))
+
+        results_sj = response_json_sj['total'], len(all_salaries_sj), int(statistics.mean(all_salaries_sj))
 
     return results_sj
+
+
+def predict_salary(salary_from, salary_to):
+    if salary_from is None or salary_from == 0:
+        predict_salary = salary_to * 0.8
+    elif salary_to is None or salary_to == 0:
+        predict_salary = salary_from * 1.2
+    elif (salary_from is not None and salary_to is not None) or (salary_from != 0 and salary_to != 0):
+        predict_salary = int((salary_from + salary_to) / 2)
+
+    return predict_salary
 
 
 def main():
@@ -86,11 +88,13 @@ def main():
     table_data_hh = table_data_sj = (('Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата'), )
 
     for language in languages_list:
-        salary_hh = predict_rub_salary_for_hh(fetch_vacancy_hh(language))
+        salary_hh = result_for_hh(fetch_vacancy_hh(language))
         print(f"{language} vacancies from HH loaded")
-        salary_sj = predict_rub_salary_for_sj(fetch_vacancy_sj(language))
-        table_data_hh = table_data_hh + ((language,) + salary_hh,)
+
+        salary_sj = result_for_sj(fetch_vacancy_sj(language))
         print(f"{language} vacancies from SJ loaded")
+
+        table_data_hh = table_data_hh + ((language,) + salary_hh,)
         table_data_sj = table_data_sj + ((language,) + salary_sj,)
 
     table_header_hh = 'HeadHunter'
